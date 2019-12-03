@@ -33,113 +33,48 @@ describe("findById", () => {
   });
 
   test("should return null if a document with the provided ID could not be found", async () => {
-    const result = await product.findById("123456789123");
-    expect(result).toBeNull();
   });
 });
 
 describe("findByIds", () => {
   test("should return the correct documents by ID", async () => {
-    const { product1, product3 } = await createSampleProducts();
-    const result = await product.findByIds([product1._id, product3._id]);
-    expect(result).toMatchObject([product1, product3]);
   });
 
   test("should return empty array if documents with the provided IDs could not be found", async () => {
-    const result = await product.findByIds(["123456789123"]);
-    expect(result).toEqual([]);
   });
 });
 
 describe("findByBrand", () => {
   test("should return matching documents with no sort", async () => {
-    const { product1, product3 } = await createSampleProducts();
-    const result = await product.findByBrand("Bernina");
-    expect(result).toEqual([product1, product3]);
   });
 
   test("should return matching documents with custom sort", async () => {
-    const { product1, product3 } = await createSampleProducts();
-    const result = await product.findByBrand("Bernina", { salePrice: 1 });
-    expect(result).toEqual([product3, product1]); // sorted by sale price, ascending
   });
 
   test("should return empty array if there are no matches", async () => {
-    const { product1, product3 } = await createSampleProducts();
-    const result = await product.findByBrand("Unknown");
-    expect(result).toEqual([]);
   });
 });
 
 describe("serialize", () => {
   test("should return correct shape", async () => {
-    const { product4 } = await createSampleProducts();
-    const result = await product.serialize(product4._id);
-
-    expect(result).toMatchObject({
-      id: String(product4._id),
-      model: "NQ3600D",
-      title: "Sewing & Embroidery Machine",
-      brandName: "Brother",
-      price: 219.99,
-      listPrice: 249.99,
-      // we'll test these in more detail in another test
-      sku: expect.any(String),
-      discount: expect.any(Number),
-      discountPercent: expect.any(Number),
-      relatedProducts: expect.any(Array)
-    });
   });
 
   test("should return the correct SKU", async () => {
-    const { product4 } = await createSampleProducts();
-    const { sku } = await product.serialize(product4._id);
-    expect(sku).toBe("Brother-NQ3600D");
   });
 
   test("should return the correct discount if msrp is higher than sale price", async () => {
-    const { product4 } = await createSampleProducts();
-    const { discount, discountPercent } = await product.serialize(product4._id);
-    expect(discount).toBe(30);
-    expect(discountPercent).toBe(13);
   });
 
   test("should return a zero discount if msrp is lower than sale price", async () => {
-    const { product1 } = await createSampleProducts();
-    const { discount, discountPercent } = await product.serialize(product1._id);
-    expect(discount).toBe(0);
-    expect(discountPercent).toBe(0);
   });
 
   test("should return a zero discount if msrp is not set", async () => {
-    const { product2 } = await createSampleProducts();
-    const { discount, discountPercent } = await product.serialize(product2._id);
-    expect(discount).toBe(0);
-    expect(discountPercent).toBe(0);
   });
 
   test("should return the correct related products", async () => {
-    const { product1, product3, product4 } = await createSampleProducts();
-    const { relatedProducts } = await product.serialize(product4._id);
-
-    expect(relatedProducts).toEqual([
-      {
-        id: String(product1._id),
-        title: "PLUS Sewing Quilting Machine",
-        brandName: "Bernina"
-      },
-      {
-        id: String(product3._id),
-        title: "L460 Overlocker",
-        brandName: "Bernina"
-      }
-    ]);
   });
 
   test("should return an empty array if there are no related products", async () => {
-    const { product1 } = await createSampleProducts();
-    const { relatedProducts } = await product.serialize(product1._id);
-    expect(relatedProducts).toEqual([]);
   });
 });
 
